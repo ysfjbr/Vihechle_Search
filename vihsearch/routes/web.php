@@ -17,3 +17,7 @@ Route::get('/', function () {
     return view('welcome');
     //return "Hello";
 });
+
+Route::get('/import', 'VihecleController@importPage');
+
+Route::get('/v', 'VihecleController@list');
