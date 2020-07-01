@@ -1,18 +1,34 @@
-import React from 'react';
+import React, {useState, useEffect} from "react"
 import ReactDOM from 'react-dom';
+import ScItems from "./schItems.component"
+import SearchItem from "./SearchItem.component"
 
 function App() {
+    const [descSort, setDescSort] = useState(-1)
+
+    useEffect(()=> {
+        document.title = "Search"
+        //getData()  childOptions={}
+    },[])
+
     return (
         <div className="container">
-            <div className="row justify-content-center">
-                <div className="col-md-8">
-                    <div className="card">
-                        <div className="card-header">Search Component</div>
-
-                        <div className="card-body">I'm an example component!</div>
-                    </div>
+            <div>
+                <input  type="radio" className="hidden"
+                        name="radioGroup" 
+                        tabIndex="0" value="-1"  
+                        onChange={()=> setDescSort(-1)} />
+                Desc
                 </div>
+                <div>
+                <input  type="radio" className="hidden"
+                        name="radioGroup"
+                        tabIndex="1" value="1" 
+                        onChange={()=> setDescSort(1)} />
+                Asc
             </div>
+
+            <ScItems key={descSort} table="vihechle" childComponent = {SearchItem} />
         </div>
     );
 }

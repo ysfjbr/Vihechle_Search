@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\DB;
+
 use App\Vihecle;
 use App\Country;
 use App\Categ;
@@ -11,6 +13,7 @@ use App\Series;
 use App\Producer;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use \PhpOffice\PhpSpreadsheet\IOFactory;
 
 class VihecleController extends Controller
@@ -18,7 +21,7 @@ class VihecleController extends Controller
     public function list()
     {
         $vihecles = Vihecle::all();
-        return view("vihecle.list", ["vihecles" => $vihecles]);
+        return view("vihecle.search");
     }
 
     function only_number($str) {
@@ -29,11 +32,84 @@ class VihecleController extends Controller
     {
         return view("vihecle.import");
     }
-    
-    function import(Request $req)
+
+    public function getSearchData(Request $req)
     {
+        //return  DB::table("vihecles")->paginate(15);// $req->page_size;
+        /* if($req->itemID)
+        {
+            $obj = Vihecle::findOrFail($req->itemID);
+            $obj->country = Country::findOrFail($obj->country_id)->name;
+            $obj->series = Series::findOrFail($obj->series_id)->name;
+            $obj->producer = Producer::findOrFail( Series::findOrFail($obj->series_id)->producer_id)->name;
+            $obj->subcateg = Subcateg::findOrFail($obj->subcateg_id)->name;
+            $obj->categ = Categ::findOrFail(Subcateg::findOrFail($obj->subcateg_id)->categ_id)->name;
+            if($obj->sales_id) $obj->sales = Sales::findOrFail($obj->sales_id)->name;
+            return $obj;
+        } */
+        //->where("id","<",71)
+        $search_res =  DB::table("vihecles")
+            ->join('series', 'series.id', '=', 'vihecles.series_id')
+            ->join('producers', 'producers.id', '=', 'series.producer_id')
+            ->leftJoin('countries', 'countries.id', '=', 'vihecles.country_id')
+            ->leftJoin('sales', 'sales.id', '=', 'vihecles.sales_id')
+            ->join('subcategs', 'subcategs.id', '=', 'vihecles.subcateg_id')
+            ->join('categs', 'categs.id', '=', 'subcategs.categ_id')
+
+            ->select(   'vihecles.*', 
+                        'series.name as series', 
+                        'series.producer_id', 
+                        'producers.name as producer',
+                        'countries.name as country',
+                        'sales.name as sales',
+                        'subcategs.name as subcateg',
+                        'categs.name as categ'
+                    )
+
+            ->where($req->producer ? "series.producer_id":"" ,$req->producer ? "=" : "",$req->producer)
+            ->where($req->yearFrom ? "vihecles.year":"" ,$req->yearFrom ? ">=" : "",$req->yearFrom)
+            ->where($req->yearTo ? "vihecles.year":"" ,$req->yearTo ? "<=" : "",$req->yearTo)
+            ->where(DB::raw("series.name || ' '|| vihecles.size || ' '|| vihecles.config") , "like" ,"%".$req->model."%")
+            ->paginate($req->page_size);
+        return $search_res;
+        //$filter_data = 
+        //return Vihecle::all()->slice($req->page_num * $req->page_size, $req->page_size)->all();
+    }
+    
+    public function getFilterData(Request $req)
+    {
+        $producers =  DB::table("producers")->orderBy('name', 'asc')->get();
+        
+        $models =  DB::table("vihecles")
+            ->join('series', 'series.id', '=', 'vihecles.series_id')
+            ->selectRaw("series.name || ' '|| vihecles.size || ' '|| vihecles.config AS model")
+            ->where("series.producer_id" ,"=" ,$req->producer)
+            ->orderBy('series.name', 'asc')
+            ->orderBy('vihecles.size', 'asc')
+            ->orderBy('vihecles.config', 'asc')
+            ->distinct()->get();
+            
+        $years =  DB::table("vihecles")->selectRaw("min(year) as minYear")->selectRaw("max(year) as maxYear")
+                    ->join('series', 'series.id', '=', 'vihecles.series_id')
+                    ->where($req->producer ? "series.producer_id":"" ,$req->producer ? "=" : "",$req->producer)->first();
+
+        /* $years->minYear = max($years->minYear,$req->yearFrom);
+        $years->maxYear = min($years->minYear,$req->yearFrom);
+ */
+        return response()->json([
+                    'years'     => $years,
+                    'models'    => $models,
+                    'producers' => $producers,
+                ]);
+
+    }
+
+    public function import(Request $req)
+    {//(false)//
+        
         if(false)//($req->file("fn"))
         {
+            ini_set('max_execution_time', 1800);  /// Timeout = 30 min
             $path = $req->file("fn");
             $inputFileType = 'Xlsx';
             $inputFileName = $path;
@@ -167,12 +243,12 @@ class VihecleController extends Controller
                         $vih->subcateg_id = $subcateg_obj->id;
                         $vih->country_id = $country_obj->id;
                         $vih->sales_id = $saleObj->id ?? null;
-                        $vih->size = $id;
-                        $vih->config = $id;
-                        $vih->year = $id;
-                        $vih->cylinder = $id;
-                        $vih->eng_output = $id;
-                        $vih->drivetype = $id;
+                        $vih->size = $size;
+                        $vih->config = $config;
+                        $vih->year = $year;
+                        $vih->cylinder = $cylinder;
+                        $vih->eng_output = $engine;
+                        $vih->drivetype = $drivetype;
                         $vih->save();
                         echo "Added To Vihecles: ".$model."<br>";
                     }
