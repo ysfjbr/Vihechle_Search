@@ -10,7 +10,7 @@ class Subcateg extends Model
 
     public function categ()
     {
-        $this->belongsTo(Categ::class);
+        return $this->belongsTo(Categ::class);
     }
 
     public function vihecles()

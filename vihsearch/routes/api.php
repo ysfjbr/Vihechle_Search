@@ -22,6 +22,7 @@ Route::post('/import', 'VihecleController@import');
 
 Route::post('/getSearchData', 'VihecleController@getSearchData');
 Route::post('/getFilterData', 'VihecleController@getFilterData');
+Route::post('/getItemData',   'VihecleController@getItemData');
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();

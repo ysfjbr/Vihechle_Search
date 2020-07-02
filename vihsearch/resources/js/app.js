@@ -18,7 +18,9 @@ window.Vue = require('vue');
 // const files = require.context('./', true, /\.vue$/i)
 // files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
 
-Vue.component('example-component', require('./components/ExampleComponent.vue').default);
+Vue.component('viheclemodal', require('./components/VihecleModal.Component.vue').default);
+Vue.component('vihecle', require('./components/Vihecle.Component.vue').default);
+
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
@@ -35,23 +37,28 @@ const app = new Vue({
 	el:'#app',
 	data:{
         results:[], 
-        filterData: {years:{minYear:"1995", maxYear:"2020"}},
-
+        filterData: {years_size:{minYear:"1995", maxYear:"2020",sizeFrom:"0", sizeTo:"99999"}},
+        categ:"2",
         producer:'',
         model:'',
         yearFrom:'1900',
         yearTo:'2050',
         yearRange:[],
-        sizeFrom:'',
-        sizeTo:'',
+
+        sizeFrom:'0',
+        sizeTo:'99999',
+        sizeRange:[],
 
         page_size:30,
         page:1,
         more: true,
 
 		noResults:false,
-		searching:false,
-		mySlider:null
+        searching:false,
+        
+        modalVal:""
+
+		//mySlider:null
 	},
 	methods:{
         filterChanged:function()
@@ -67,8 +74,10 @@ const app = new Vue({
                     method: 'post',
                     url: `/api/getFilterData`,
                     data:  {
+                                "categ":    this.categ,
                                 "producer": this.producer,
                                 "yearFrom": this.yearFrom,
+                                "model":    this.model,
                                 "yearTo":   this.yearTo,
                                 "sizeFrom": this.sizeFrom,
                                 "sizeTo":   this.sizeTo
@@ -77,21 +86,31 @@ const app = new Vue({
                     })
                     .then(res => {
                         this.searching = false;
+
+                        this.filterData.categs =  res.data.categs;
+
                         this.filterData.producers =  res.data.producers;
                         
                         this.filterData.models =  res.data.models;
-                        const trimArray = array => array.map(string => string.model.trim());
+                        const trimArray = array => array.map(string => string.trim());
                         const modelsArr= trimArray(Object.values(res.data.models));
                         if(!modelsArr.includes(this.model.trim())) this.model ='';
 
-                        this.filterData.years =  res.data.years;
+                        this.filterData.years_size =  res.data.years_size;
 
                         this.yearRange = [];
-                        for(let i = Number(res.data.years.minYear); i<= Number(res.data.years.maxYear) ; i++)
+                        for(let i = Number(res.data.years_size.minYear); i<= Number(res.data.years_size.maxYear) ; i++)
                         this.yearRange.push(i) 
-
                         if(!this.yearRange.includes(this.yearFrom)) this.yearFrom ='';
                         if(!this.yearRange.includes(this.yearTo)) this.yearTo ='';
+
+                        this.sizeRange = [];
+                        for(let i = Number(res.data.years_size.minSize); i<= Number(res.data.years_size.maxSize) ; i+=500)
+                        this.sizeRange.push(i) 
+                        console.log();
+                        
+                        if(!this.sizeRange.includes(this.sizeFrom)) this.sizeFrom ='0';
+                        if(!this.sizeRange.includes(this.sizeTo)) this.sizeTo ='99999';
 
                         console.log("filter model",this.filterData );
                         this.search();
@@ -110,7 +129,8 @@ const app = new Vue({
                     method: 'post',
                     url: `/api/getSearchData`,
                     data:  {
-                                "page_size":this.page_size,
+                                "categ"     :this.categ,
+                                "page_size" :this.page_size,
                                 "page":     this.page,
                                 "producer": this.producer,
                                 "model":    this.model,
@@ -146,7 +166,22 @@ const app = new Vue({
 
         resHeight:function () {
             return this.$refs.resultsDiv.clientHeight;
-          }
+          },
+        showModal:function(e) {
+            let from = e.target
+            this.modalVal = $(from).attr("ds")
+            let modal = this.$refs.modal.$el
+            $(modal).modal('show')
+        }
+    },
+    watch:{
+        "categ": function(n,o)
+        {
+            console.log(n,o);
+            this.producer ="";
+            this.model ="";
+            this.filterChanged();
+        }
     },
     created:function() {
         window.addEventListener('scroll', this.handleScroll);

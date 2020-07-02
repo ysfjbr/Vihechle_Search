@@ -8,21 +8,26 @@ class Vihecle extends Model
 {
     public function subcateg()
     {
-        $this->belongsTo(Subcateg::class);
+        return $this->belongsTo(Subcateg::class);
     }
 
     public function series()
     {
-        $this->belongsTo(Series::class);
+        return $this->belongsTo(Series::class);
     }
 
     public function country()
     {
-        $this->belongsTo(Country::class);
+        return $this->belongsTo(Country::class);
     }
 
     public function sales()
     {
-        $this->belongsTo(Sales::class);
+        return $this->belongsTo(Sales::class);
+    }
+
+    public function parts()
+    {
+        return $this->belongsToMany(Part::class, 'vihecle__parts');
     }
 }

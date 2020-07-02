@@ -29,11 +29,21 @@
 	<body>
 
 		<div id="app" class="container">
+		<div class="sticky-top">
+			<div class="form-row">
+				<div class="col-md-12 mb-3">
+					<div v-for="tcateg in filterData.categs" class="custom-control custom-radio custom-control-inline">
+						<input type="radio" :id="'categ'+tcateg.id" v-model="categ" :value="tcateg.id" name="customRadioInline1" class="custom-control-input">
+						<label class="custom-control-label" :for="'categ'+tcateg.id">@{{tcateg.name}}</label>
+					  </div>
+				</div>
+			</div>
+
 			
 			<div class="form-row">
 				<div class="col-md-4 mb-3">
 				</div>
-				<div class="col-md-8 mb-3">
+				<div class="col-md-4 mb-3">
 					<select class="filter" v-model="producer" @change="filterChanged" data-live-search="true">
 						<option value="" data-tokens="">
 							All
@@ -44,23 +54,20 @@
 						</option>
 					</select>
 				</div>
-			</div>
 
-			<div class="form-row">
 				<div class="col-md-4 mb-3">
-				</div>
-				<div class="col-md-8 mb-3">
 					<select class="filter" v-model="model" @change="filterChanged" data-live-search="true">
 						<option value="" data-tokens="">
 							All
 						</option>
 
-						<option v-for="mod in filterData.models" :value="mod.model">
-							@{{mod.model}}
+						<option v-for="mod in filterData.models" :value="mod">
+							@{{mod}}
 						</option>
 					</select>
 				</div>
 			</div>
+
 
 			<div class="form-row">
 				<div class="col-md-4 mb-3">
@@ -90,16 +97,40 @@
 			</div>
 
 			<div class="form-row">
+				<div class="col-md-4 mb-3">
+				</div>
+				<div class="col-md-4 mb-3">
+					<select class="filter" v-model="sizeFrom" @change="filterChanged" data-live-search="true">
+						<option value="0" data-tokens="">
+							All
+						</option>
+
+						<option v-for="size in sizeRange" :value="size" :disabled="sizeTo ? size>sizeTo:false">
+							@{{size}}
+						</option>
+					</select>
+				</div>
+				<div class="col-md-4 mb-3">
+					<select class="filter" v-model="sizeTo" @change="filterChanged" data-live-search="true">
+						<option value="99999" data-tokens="">
+							All
+						</option>
+
+						<option v-for="size in sizeRange" :value="size"  :disabled="sizeFrom ? size<sizeFrom : false">
+							@{{size}}
+						</option>
+					</select>
+				</div>
+			</div>
+		</div>
+			<div class="form-row">
 				<div class="col-md-12 mb-3">
 					<div ref="resultsDiv">
+						<viheclemodal ref="modal" :vid="modalVal" searching="false"></viheclemodal>
 						<div v-for="result in results" class="result">
-							@{{result.producer}}
-							@{{result.series}}
-							@{{result.size}}
-							@{{result.config}}
-							@{{result.year}}
-							@{{result.country}}
-							<br clear="left">
+							<a href="#" @click.prevent="showModal" :vid="result.id">
+								<vihecle :rdata="result"></vihecle>
+							</a>
 						</div>
 					</div>
 				</div>
