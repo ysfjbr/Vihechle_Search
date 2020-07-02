@@ -20,6 +20,7 @@ window.Vue = require('vue');
 
 Vue.component('viheclemodal', require('./components/VihecleModal.Component.vue').default);
 Vue.component('vihecle', require('./components/Vihecle.Component.vue').default);
+Vue.component('mdb-select', require('mdbvue'));
 
 
 /**
@@ -33,8 +34,9 @@ Vue.filter('formatDate', function(d) {
 	return new Intl.DateTimeFormat('en-US').format(new Date(d));
 }); 
 
+
 const app = new Vue({
-	el:'#app',
+    el:'#app',
 	data:{
         results:[], 
         filterData: {years_size:{minYear:"1995", maxYear:"2020",sizeFrom:"0", sizeTo:"99999"}},
@@ -55,7 +57,6 @@ const app = new Vue({
 
 		noResults:false,
         searching:false,
-        
         modalVal:""
 
 		//mySlider:null

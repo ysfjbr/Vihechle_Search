@@ -5,145 +5,157 @@
 		<title></title>
 		<meta name="description" content="">
 		<meta name="viewport" content="width=device-width">
-		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
 
-		<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-		<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
-	
-		<!-- Latest compiled and minified CSS -->
-		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css">
-	
-		<!-- Latest compiled and minified JavaScript -->
-		<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
-	
-		<!-- (Optional) Latest compiled and minified JavaScript translation files -->
-		<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/i18n/defaults-*.min.js"></script>
-		
+		<!-- Font Awesome -->
+		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css">
+		<!-- Google Fonts -->
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap">
+		<!-- Bootstrap core CSS -->
+		<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet">
+		<!-- Material Design Bootstrap -->
+		<link href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.19.1/css/mdb.min.css" rel="stylesheet">
 
-	
+
+		<!-- JQuery -->
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+		<!-- Bootstrap tooltips -->
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.4/umd/popper.min.js"></script>
+		<!-- Bootstrap core JavaScript -->
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/js/bootstrap.min.js"></script>
+		<!-- MDB core JavaScript -->
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.19.1/js/mdb.min.js"></script>
+
 		<title>Document</title>
 
-		<link rel="stylesheet" href="css/slider.css">
+		<link rel="stylesheet" href="css/mystyle.css">
 	</head>
 	<body>
 
-		<div id="app" class="container">
-		<div class="sticky-top">
-			<div class="form-row">
-				<div class="col-md-12 mb-3">
-					<div v-for="tcateg in filterData.categs" class="custom-control custom-radio custom-control-inline">
-						<input type="radio" :id="'categ'+tcateg.id" v-model="categ" :value="tcateg.id" name="customRadioInline1" class="custom-control-input">
-						<label class="custom-control-label" :for="'categ'+tcateg.id">@{{tcateg.name}}</label>
-					  </div>
-				</div>
-			</div>
+		<div id="app" >
+			<div class="searchHeaderDiv sticky-top">
+				<div class="container">
+					<div class="form-row">
+						<div class="col-md-12 mb-3">
+							<div v-for="tcateg in filterData.categs" class="custom-control custom-radio custom-control-inline">
+								<input type="radio" :id="'categ'+tcateg.id" v-model="categ" :value="tcateg.id" name="customRadioInline1" class="custom-control-input">
+								<label class="custom-control-label" :for="'categ'+tcateg.id">@{{tcateg.name}}</label>
+							</div>
+						</div>
+					</div>
 
-			
-			<div class="form-row">
-				<div class="col-md-4 mb-3">
-				</div>
-				<div class="col-md-4 mb-3">
-					<select class="filter" v-model="producer" @change="filterChanged" data-live-search="true">
-						<option value="" data-tokens="">
-							All
-						</option>
+					<mdb-select
+						outline
+						v-model="filterData.categs"
+						label="Example label"
+						placeholder="choose your option"
+					/>
 
-						<option v-for="prod in filterData.producers" :value="prod.id">
-							@{{prod.name}}
-						</option>
-					</select>
-				</div>
+					<div class="form-row">
+						<div class="col-md-4 mb-3">
+						</div>
+						<div class="col-md-4 mb-3">
+							<select class="mdb-select md-form colorful-select dropdown-primary" searchable="Search here.." v-model="producer" @change="filterChanged">
+								<option value="" data-tokens="">
+									All
+								</option>
 
-				<div class="col-md-4 mb-3">
-					<select class="filter" v-model="model" @change="filterChanged" data-live-search="true">
-						<option value="" data-tokens="">
-							All
-						</option>
+								<option v-for="prod in filterData.producers" :value="prod.id">
+									@{{prod.name}}
+								</option>
+							</select>
+						</div>
 
-						<option v-for="mod in filterData.models" :value="mod">
-							@{{mod}}
-						</option>
-					</select>
-				</div>
-			</div>
+						<div class="col-md-4 mb-3">
+							<select class="filter" v-model="model" @change="filterChanged" data-live-search="true">
+								<option value="" data-tokens="">
+									All
+								</option>
+
+								<option v-for="mod in filterData.models" :value="mod">
+									@{{mod}}
+								</option>
+							</select>
+						</div>
+					</div>
 
 
-			<div class="form-row">
-				<div class="col-md-4 mb-3">
-				</div>
-				<div class="col-md-4 mb-3">
-					<select class="filter" v-model="yearFrom" @change="filterChanged" data-live-search="true">
-						<option value="" data-tokens="">
-							All
-						</option>
+					<div class="form-row">
+						<div class="col-md-4 mb-3">
+						</div>
+						<div class="col-md-4 mb-3">
+							<select class="filter" v-model="yearFrom" @change="filterChanged" data-live-search="true">
+								<option value="" data-tokens="">
+									All
+								</option>
 
-						<option v-for="year in yearRange" :value="year" :disabled="yearTo ? year>yearTo:false">
-							@{{year}}
-						</option>
-					</select>
-				</div>
-				<div class="col-md-4 mb-3">
-					<select class="filter" v-model="yearTo" @change="filterChanged" data-live-search="true">
-						<option value="" data-tokens="">
-							All
-						</option>
+								<option v-for="year in yearRange" :value="year" :disabled="yearTo ? year>yearTo:false">
+									@{{year}}
+								</option>
+							</select>
+						</div>
+						<div class="col-md-4 mb-3">
+							<select class="filter" v-model="yearTo" @change="filterChanged" data-live-search="true">
+								<option value="" data-tokens="">
+									All
+								</option>
 
-						<option v-for="year in yearRange" :value="year"  :disabled="yearFrom ? year<yearFrom : false">
-							@{{year}}
-						</option>
-					</select>
-				</div>
-			</div>
+								<option v-for="year in yearRange" :value="year"  :disabled="yearFrom ? year<yearFrom : false">
+									@{{year}}
+								</option>
+							</select>
+						</div>
+					</div>
 
-			<div class="form-row">
-				<div class="col-md-4 mb-3">
-				</div>
-				<div class="col-md-4 mb-3">
-					<select class="filter" v-model="sizeFrom" @change="filterChanged" data-live-search="true">
-						<option value="0" data-tokens="">
-							All
-						</option>
+					<div class="form-row">
+						<div class="col-md-4 mb-3">
+						</div>
+						<div class="col-md-4 mb-3">
+							<select class="filter" v-model="sizeFrom" @change="filterChanged" data-live-search="true">
+								<option value="0" data-tokens="">
+									All
+								</option>
 
-						<option v-for="size in sizeRange" :value="size" :disabled="sizeTo ? size>sizeTo:false">
-							@{{size}}
-						</option>
-					</select>
-				</div>
-				<div class="col-md-4 mb-3">
-					<select class="filter" v-model="sizeTo" @change="filterChanged" data-live-search="true">
-						<option value="99999" data-tokens="">
-							All
-						</option>
+								<option v-for="size in sizeRange" :value="size" :disabled="sizeTo ? size>sizeTo:false">
+									@{{size}}
+								</option>
+							</select>
+						</div>
+						<div class="col-md-4 mb-3">
+							<select class="filter" v-model="sizeTo" @change="filterChanged" data-live-search="true">
+								<option value="99999" data-tokens="">
+									All
+								</option>
 
-						<option v-for="size in sizeRange" :value="size"  :disabled="sizeFrom ? size<sizeFrom : false">
-							@{{size}}
-						</option>
-					</select>
-				</div>
-			</div>
-		</div>
-			<div class="form-row">
-				<div class="col-md-12 mb-3">
-					<div ref="resultsDiv">
-						<viheclemodal ref="modal" :vid="modalVal" searching="false"></viheclemodal>
-						<div v-for="result in results" class="result">
-							<a href="#" @click.prevent="showModal" :vid="result.id">
-								<vihecle :rdata="result"></vihecle>
-							</a>
+								<option v-for="size in sizeRange" :value="size"  :disabled="sizeFrom ? size<sizeFrom : false">
+									@{{size}}
+								</option>
+							</select>
 						</div>
 					</div>
 				</div>
 			</div>
+			<div class="container">
+				<div class="form-row">
+					<div class="col-md-12 mb-3">
+						<div ref="resultsDiv">
+							<viheclemodal ref="modal" :vid="modalVal" searching="false"></viheclemodal>
+							<div v-for="result in results" class="result">
+								<a href="#" @click.prevent="showModal" :vid="result.id">
+									<vihecle :rdata="result"></vihecle>
+								</a>
+							</div>
+						</div>
+					</div>
+				</div>
 
-			<div v-if="noResults">
-				Sorry, but no results were found.
+				<div v-if="noResults">
+					Sorry, but no results were found.
+				</div>
+
+				<div v-if="searching">
+					<i>Searching...</i>
+				</div>
 			</div>
-
-			<div v-if="searching">
-				<i>Searching...</i>
-			</div>
-
 		</div>
 
 		<script src="js/app.js"></script>

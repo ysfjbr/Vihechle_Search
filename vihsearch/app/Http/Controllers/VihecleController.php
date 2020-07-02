@@ -85,7 +85,9 @@ class VihecleController extends Controller
 
     public function getFilterData(Request $req)
     {
-        $categs =  DB::table("categs")->orderBy('name', 'asc')->get();
+        $categs =  DB::table("categs")->orderBy('name', 'asc')
+                    ->select('name as text', 'id as value')
+                    ->get();
 
         $vihecles =  DB::table("vihecles")
                     ->join('series', 'series.id', '=', 'vihecles.series_id')
@@ -119,23 +121,15 @@ class VihecleController extends Controller
                         ->join('vihecles', 'vihecles.series_id', '=', 'series.id')
                         ->join('subcategs', 'vihecles.subcateg_id', '=', 'subcategs.id')
                         ->where("subcategs.categ_id","=",$req->categ)
-                        //->where($req->producer ? "series.producer_id":"" ,$req->producer ? "<=" : "",$req->producer)
                         ->select("producers.*")
                         ->groupBy('producers.name')
-                        //->selectRaw("distinct(producers.name)")
-                        //->selectRaw("series.name || ' '|| vihecles.size || ' '|| vihecles.config AS model")
                         ->orderBy('producers.name', 'asc')
-                        /* ->orderBy('series.name', 'asc')
-                        ->orderBy('vihecles.size', 'asc')
-                        ->orderBy('vihecles.config', 'asc') */
                         ->get(); 
 
         $models = [];
-        //$producers = [];
 
         foreach ($vihecles as $vihecle)
         {
-            //array_push($producers,["id"=>$vihecle->producer_id,"name"=>$vihecle->producer]);
             if($req->producer) array_push($models,$vihecle->model);        
         }
 

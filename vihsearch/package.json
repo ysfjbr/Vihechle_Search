@@ -27,6 +27,8 @@
         "bootstrap-select": "^1.13.18",
         "bootstrap-slider": "^11.0.2",
         "lru-cache": "^5.1.1",
+        "mdbootstrap": "^4.19.1",
+        "mdbvue": "^6.7.1",
         "react-infinite-scroll-component": "^5.0.5"
     }
 }

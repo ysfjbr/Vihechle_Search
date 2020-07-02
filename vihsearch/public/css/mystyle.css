@@ -1,0 +1,29 @@
+.searchHeaderDiv
+{
+    background-color: #fff;
+    padding: 20px;
+}
+
+.result a{
+    color: #666;
+}
+
+.result a:hover{
+    color: #222;
+    text-decoration:none;
+}
+
+.itemDiv
+{
+    margin: 5px 0;
+}
+
+.card
+{
+    background: none !important ;
+}
+
+.itemDiv:hover
+{
+    background-color: #fefefe;
+}
