@@ -27,3 +27,19 @@
 {
     background-color: #fefefe;
 }
+
+.categ_select .vs__clear
+{
+    display: none;
+}
+
+.custom-select .vs__dropdown-toggle
+{
+    border: none;
+}
+
+.custom-select
+{
+    background:#fff !important;
+    padding: 2px !important;
+}

@@ -6,25 +6,6 @@
 		<meta name="description" content="">
 		<meta name="viewport" content="width=device-width">
 
-		<!-- Font Awesome -->
-		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css">
-		<!-- Google Fonts -->
-		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap">
-		<!-- Bootstrap core CSS -->
-		<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet">
-		<!-- Material Design Bootstrap -->
-		<link href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.19.1/css/mdb.min.css" rel="stylesheet">
-
-
-		<!-- JQuery -->
-		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-		<!-- Bootstrap tooltips -->
-		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.4/umd/popper.min.js"></script>
-		<!-- Bootstrap core JavaScript -->
-		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/js/bootstrap.min.js"></script>
-		<!-- MDB core JavaScript -->
-		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.19.1/js/mdb.min.js"></script>
-
 		<title>Document</title>
 
 		<link rel="stylesheet" href="css/mystyle.css">
@@ -34,104 +15,51 @@
 		<div id="app" >
 			<div class="searchHeaderDiv sticky-top">
 				<div class="container">
+					
 					<div class="form-row">
-						<div class="col-md-12 mb-3">
-							<div v-for="tcateg in filterData.categs" class="custom-control custom-radio custom-control-inline">
-								<input type="radio" :id="'categ'+tcateg.id" v-model="categ" :value="tcateg.id" name="customRadioInline1" class="custom-control-input">
-								<label class="custom-control-label" :for="'categ'+tcateg.id">@{{tcateg.name}}</label>
+						<div class="col-md-4 mb-3">
+							<v-select v-model="categ" class="categ_select" placeholder="Select Category" :reduce="item => item.code" :options="filterData.categs || options" />
+						</div>
+						<div class="col-md-4 mb-3">
+							<v-select v-model="producer" placeholder="Select Producer"  :reduce="item => item.code" :options="filterData.producers || options" />
+						</div>
+						<div class="col-md-4 mb-3">
+							<v-select v-model="model" :disabled="producer===null" placeholder="Select Model"  :reduce="item => item.code"  :options="filterData.models || options" />
+						</div>
+					</div>
+
+					<div class="form-row">
+						<div class="col-md-6 mb-3">
+							<div class="input-group mb-3">
+								<div class="input-group-prepend">
+									<span class="input-group-text" id="">Engine Size Range</span>
+								  </div>
+								<div class="custom-select">
+									<v-select v-model="sizeFrom" placeholder="All" :reduce="item => item.code" :options="sizeRange || options" /><option selected>Choose...</option>
+								</div>
+								
+								<div class="custom-select">
+									<v-select v-model="sizeTo"  placeholder="All"  :reduce="item => item.code" :options="sizeRange || options" />
+								</div>
+							</div>
+						</div>
+						<div class="col-md-6 mb-3">
+							<div class="input-group mb-3">
+								<div class="input-group-prepend">
+									<span class="input-group-text" id="">Model Year Range</span>
+								  </div>
+								<div class="custom-select">
+									<v-select v-model="yearFrom"  placeholder="All"  :reduce="item => item.code"  :options="yearRange || options" />
+								</div>
+								
+								<div class="custom-select">
+									<v-select v-model="yearTo"  placeholder="All"  :reduce="item => item.code"  :options="yearRange || options" />
+								</div>
 							</div>
 						</div>
 					</div>
-
-					<mdb-select
-						outline
-						v-model="filterData.categs"
-						label="Example label"
-						placeholder="choose your option"
-					/>
-
-					<div class="form-row">
-						<div class="col-md-4 mb-3">
-						</div>
-						<div class="col-md-4 mb-3">
-							<select class="mdb-select md-form colorful-select dropdown-primary" searchable="Search here.." v-model="producer" @change="filterChanged">
-								<option value="" data-tokens="">
-									All
-								</option>
-
-								<option v-for="prod in filterData.producers" :value="prod.id">
-									@{{prod.name}}
-								</option>
-							</select>
-						</div>
-
-						<div class="col-md-4 mb-3">
-							<select class="filter" v-model="model" @change="filterChanged" data-live-search="true">
-								<option value="" data-tokens="">
-									All
-								</option>
-
-								<option v-for="mod in filterData.models" :value="mod">
-									@{{mod}}
-								</option>
-							</select>
-						</div>
-					</div>
-
-
-					<div class="form-row">
-						<div class="col-md-4 mb-3">
-						</div>
-						<div class="col-md-4 mb-3">
-							<select class="filter" v-model="yearFrom" @change="filterChanged" data-live-search="true">
-								<option value="" data-tokens="">
-									All
-								</option>
-
-								<option v-for="year in yearRange" :value="year" :disabled="yearTo ? year>yearTo:false">
-									@{{year}}
-								</option>
-							</select>
-						</div>
-						<div class="col-md-4 mb-3">
-							<select class="filter" v-model="yearTo" @change="filterChanged" data-live-search="true">
-								<option value="" data-tokens="">
-									All
-								</option>
-
-								<option v-for="year in yearRange" :value="year"  :disabled="yearFrom ? year<yearFrom : false">
-									@{{year}}
-								</option>
-							</select>
-						</div>
-					</div>
-
-					<div class="form-row">
-						<div class="col-md-4 mb-3">
-						</div>
-						<div class="col-md-4 mb-3">
-							<select class="filter" v-model="sizeFrom" @change="filterChanged" data-live-search="true">
-								<option value="0" data-tokens="">
-									All
-								</option>
-
-								<option v-for="size in sizeRange" :value="size" :disabled="sizeTo ? size>sizeTo:false">
-									@{{size}}
-								</option>
-							</select>
-						</div>
-						<div class="col-md-4 mb-3">
-							<select class="filter" v-model="sizeTo" @change="filterChanged" data-live-search="true">
-								<option value="99999" data-tokens="">
-									All
-								</option>
-
-								<option v-for="size in sizeRange" :value="size"  :disabled="sizeFrom ? size<sizeFrom : false">
-									@{{size}}
-								</option>
-							</select>
-						</div>
-					</div>
+					
+					
 				</div>
 			</div>
 			<div class="container">

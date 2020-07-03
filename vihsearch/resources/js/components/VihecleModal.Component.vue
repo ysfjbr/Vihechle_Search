@@ -51,10 +51,22 @@
                     url: `/api/getItemData`,
                     data:  {"vid":id},
                 })
-                //axios.post("/api/getItemData",{data:})
+                
                 .then(response => {
                     this.searching = false;
                     console.log(response.data)
+
+                    function compareName(a, b) {
+                        return (a.name > b.name)? 1: -1;
+                    }
+
+                    function compareActive(a, b) {
+                        return (a.active > b.active)? -1: 1;
+                    }
+
+                    response.data.parts.sort(compareName);
+                    response.data.parts.sort(compareActive);
+
                     this.results = response.data;
                 });
             }

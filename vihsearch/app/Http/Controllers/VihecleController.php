@@ -71,9 +71,13 @@ class VihecleController extends Controller
                         ->where($req->producer ? "series.producer_id":"" ,$req->producer ? "=" : "",$req->producer)
                         ->where($req->yearFrom ? "vihecles.year":"" ,$req->yearFrom ? ">=" : "",$req->yearFrom)
                         ->where($req->yearTo ? "vihecles.year":"" ,$req->yearTo ? "<=" : "",$req->yearTo)
-                        ->where(DB::raw("cast(vihecles.size as Int)") , ">=" ,$req->sizeFrom )
-                        ->where(DB::raw("cast(vihecles.size as Int)") , "<=" ,$req->sizeTo)
+                        ->where(DB::raw("cast(vihecles.size as Int)") , ">=" ,$req->sizeFrom ?? 0 )
+                        ->where(DB::raw("cast(vihecles.size as Int)") , "<=" ,$req->sizeTo ?? 999999)
                         ->where(DB::raw("series.name || ' '|| vihecles.size || ' '|| vihecles.config") , "like" ,"%".$req->model."%")
+                        ->orderBy('producers.name', 'asc')
+                        ->orderBy('series.name', 'asc')
+                        ->orderBy('vihecles.size', 'asc')
+                        ->orderBy('vihecles.config', 'asc')
                         ->paginate($req->page_size);
         return $search_res;
     }
@@ -86,7 +90,7 @@ class VihecleController extends Controller
     public function getFilterData(Request $req)
     {
         $categs =  DB::table("categs")->orderBy('name', 'asc')
-                    ->select('name as text', 'id as value')
+                    ->select('categs.*', 'name as label', 'id as code')
                     ->get();
 
         $vihecles =  DB::table("vihecles")
@@ -111,8 +115,11 @@ class VihecleController extends Controller
                     ->where($req->producer ? "series.producer_id":"" ,$req->producer ? "=" : "",$req->producer)
                     ->where($req->yearFrom ? "vihecles.year":"" ,$req->yearFrom ? ">=" : "",$req->yearFrom)
                     ->where($req->yearTo ? "vihecles.year":"" ,$req->yearTo ? "<=" : "",$req->yearTo)
-                    ->where(DB::raw("cast(vihecles.size as Int)") , ">=" ,$req->sizeFrom )
-                    ->where(DB::raw("cast(vihecles.size as Int)") , "<=" ,$req->sizeTo)
+                    ->where(DB::raw("cast(vihecles.size as Int)") , ">=" ,$req->sizeFrom  ?? 0 )
+                    ->where(DB::raw("cast(vihecles.size as Int)") , "<=" ,$req->sizeTo  ?? 99999 )
+                    ->orderBy('series.name', 'asc')
+                    ->orderBy('vihecles.size', 'asc')
+                    ->orderBy('vihecles.config', 'asc')
                     //->where(DB::raw("series.name || ' '|| vihecles.size || ' '|| vihecles.config") , "like" ,"%".$req->model."%")
                     ->get();
 
@@ -121,7 +128,7 @@ class VihecleController extends Controller
                         ->join('vihecles', 'vihecles.series_id', '=', 'series.id')
                         ->join('subcategs', 'vihecles.subcateg_id', '=', 'subcategs.id')
                         ->where("subcategs.categ_id","=",$req->categ)
-                        ->select("producers.*")
+                        ->select("producers.*", 'producers.name as label', 'producers.id as code')
                         ->groupBy('producers.name')
                         ->orderBy('producers.name', 'asc')
                         ->get(); 
@@ -130,11 +137,11 @@ class VihecleController extends Controller
 
         foreach ($vihecles as $vihecle)
         {
-            if($req->producer) array_push($models,$vihecle->model);        
+            if($req->producer) array_push($models,['label'=>trim($vihecle->model),'code'=>trim($vihecle->model)]);
         }
 
         //$producers = array_unique($producers, SORT_REGULAR);
-        $models = array_unique($models);
+        //$models = array_unique($models, SORT_REGULAR);
         
         /* $models =  DB::table("vihecles")
             ->join('series', 'series.id', '=', 'vihecles.series_id')

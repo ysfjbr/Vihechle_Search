@@ -13,11 +13,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
+/* Route::get('/', function () {
     return view('welcome');
-    //return "Hello";
-});
+}); */
 
-Route::get('/import', 'VihecleController@importPage');
+//Route::get('/import', 'VihecleController@importPage');
 
-Route::get('/v', 'VihecleController@list');
+Route::get('/', 'VihecleController@list');

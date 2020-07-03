@@ -1,7 +1,8 @@
 import React, {useState, useEffect} from "react"
 import ReactDOM from 'react-dom';
 import ScItems from "./schItems.component"
-import SearchItem from "./SearchItem.component"
+
+
 
 function App() {
     const [descSort, setDescSort] = useState(-1)

@@ -6,6 +6,14 @@
 
 require('./bootstrap');
 
+require("bootstrap-css-only/css/bootstrap.min.css");
+require("@fortawesome/fontawesome-free/css/all.min.css");
+
+import vSelect from 'vue-select'
+
+import 'vue-select/dist/vue-select.css';
+
+
 window.Vue = require('vue');
 /**
  * The following block of code may be used to automatically register your
@@ -20,8 +28,8 @@ window.Vue = require('vue');
 
 Vue.component('viheclemodal', require('./components/VihecleModal.Component.vue').default);
 Vue.component('vihecle', require('./components/Vihecle.Component.vue').default);
-Vue.component('mdb-select', require('mdbvue'));
 
+Vue.component('v-select', vSelect)
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
@@ -37,18 +45,26 @@ Vue.filter('formatDate', function(d) {
 
 const app = new Vue({
     el:'#app',
+    components: {
+        vSelect
+    },
 	data:{
+        /* Deselect: {
+            render: createElement => createElement('span', '❌'),
+          }, */
+        options: [],
+        searchText: '',
         results:[], 
-        filterData: {years_size:{minYear:"1995", maxYear:"2020",sizeFrom:"0", sizeTo:"99999"}},
+        filterData: {years_size:{minYear:null, maxYear:null,sizeFrom:null, sizeTo:null}},
         categ:"2",
-        producer:'',
-        model:'',
-        yearFrom:'1900',
-        yearTo:'2050',
+        producer:null,
+        model:null,
+        yearFrom:null,
+        yearTo:null,
         yearRange:[],
 
-        sizeFrom:'0',
-        sizeTo:'99999',
+        sizeFrom:null,
+        sizeTo:null,
         sizeRange:[],
 
         page_size:30,
@@ -62,7 +78,7 @@ const app = new Vue({
 		//mySlider:null
 	},
 	methods:{
-        filterChanged:function()
+        filterChanged:function ()
         {
             console.log(this.producer,this.model);
             
@@ -77,8 +93,8 @@ const app = new Vue({
                     data:  {
                                 "categ":    this.categ,
                                 "producer": this.producer,
-                                "yearFrom": this.yearFrom,
                                 "model":    this.model,
+                                "yearFrom": this.yearFrom,
                                 "yearTo":   this.yearTo,
                                 "sizeFrom": this.sizeFrom,
                                 "sizeTo":   this.sizeTo
@@ -86,6 +102,7 @@ const app = new Vue({
                     config: { headers: { 'Content-Type': 'multipart/form-data' }}
                     })
                     .then(res => {
+                        console.log("filter model",res.data );
                         this.searching = false;
 
                         this.filterData.categs =  res.data.categs;
@@ -93,27 +110,43 @@ const app = new Vue({
                         this.filterData.producers =  res.data.producers;
                         
                         this.filterData.models =  res.data.models;
-                        const trimArray = array => array.map(string => string.trim());
-                        const modelsArr= trimArray(Object.values(res.data.models));
-                        if(!modelsArr.includes(this.model.trim())) this.model ='';
+
+                        try {
+                            const trimArray = array => array.map(string => string.label.trim());
+                            const modelsArr= trimArray(Object.values(res.data.models));
+                            if(!modelsArr.includes(this.model.trim())) this.model ="";
+                        } catch (error) {
+                            
+                        }
 
                         this.filterData.years_size =  res.data.years_size;
 
                         this.yearRange = [];
                         for(let i = Number(res.data.years_size.minYear); i<= Number(res.data.years_size.maxYear) ; i++)
-                        this.yearRange.push(i) 
-                        if(!this.yearRange.includes(this.yearFrom)) this.yearFrom ='';
-                        if(!this.yearRange.includes(this.yearTo)) this.yearTo ='';
+                        this.yearRange.push({'label':i,'code':i}) 
+                        //if(!this.yearRange.includes(this.yearFrom)) this.yearFrom =null;
+                        //if(!this.yearRange.includes(this.yearTo)) this.yearTo = null;
 
                         this.sizeRange = [];
-                        for(let i = Number(res.data.years_size.minSize); i<= Number(res.data.years_size.maxSize) ; i+=500)
-                        this.sizeRange.push(i) 
-                        console.log();
-                        
-                        if(!this.sizeRange.includes(this.sizeFrom)) this.sizeFrom ='0';
-                        if(!this.sizeRange.includes(this.sizeTo)) this.sizeTo ='99999';
+                        const maxValuesCount = 15;
+                        const Steps = res.data.years_size.maxSize - res.data.years_size.minSize < maxValuesCount ? 1 : (Math.round((res.data.years_size.maxSize - res.data.years_size.minSize)/maxValuesCount)) || 1 
 
-                        console.log("filter model",this.filterData );
+                        // List 15 Size from range
+                        for(let i = Number(res.data.years_size.minSize); i<= Number(res.data.years_size.maxSize); i+= Steps)
+                        {
+                            let sizeVal = Steps>10 ? Math.round(i/10)*10 : i;
+                            this.sizeRange.push({'label':sizeVal,'code':sizeVal}) 
+                        }
+
+                        // Add Last when not listed
+                        if(this.sizeRange[this.sizeRange.length-1].code < Number(res.data.years_size.maxSize))
+                        this.sizeRange.push({'label':res.data.years_size.maxSize,'code':res.data.years_size.maxSize}) 
+                        
+                       
+                        
+                        //if(!this.sizeRange.includes(this.sizeFrom)) this.sizeFrom =null;
+                        //if(!this.sizeRange.includes(this.sizeTo)) this.sizeTo =null;
+
                         this.search();
                     })
                     .catch(e => {
@@ -131,10 +164,10 @@ const app = new Vue({
                     url: `/api/getSearchData`,
                     data:  {
                                 "categ"     :this.categ,
-                                "page_size" :this.page_size,
-                                "page":     this.page,
                                 "producer": this.producer,
                                 "model":    this.model,
+                                "page_size" :this.page_size,
+                                "page":     this.page,
                                 "yearFrom": this.yearFrom,
                                 "yearTo":   this.yearTo,
                                 "sizeFrom": this.sizeFrom,
@@ -145,7 +178,7 @@ const app = new Vue({
                     .then(res => {
                         this.searching = false;
                         this.results =  this.results.concat(res.data.data);
-                        //console.log("ress", this.results);
+                        console.log("ress", this.results);
                         this.page ++;
                         this.more = res.data.total > this.results.length;
                         this.noResults = this.results.length === 0;
@@ -178,9 +211,34 @@ const app = new Vue({
     watch:{
         "categ": function(n,o)
         {
-            console.log(n,o);
-            this.producer ="";
-            this.model ="";
+            console.log("categgg",n,o);
+            if(n === null) this.categ = o || 2;
+            this.producer =null;
+            this.model =null;
+            this.filterChanged();
+        },
+        "producer": function(n,o)
+        {
+            this.filterChanged();
+        },
+        "model": function(n,o)
+        {
+            this.filterChanged();
+        },
+        'sizeFrom': function(n,o)
+        {
+            this.filterChanged();
+        },
+        'sizeTo': function(n,o)
+        {
+            this.filterChanged();
+        },
+        'yearFrom': function(n,o)
+        {
+            this.filterChanged();
+        },
+        'yearTo': function(n,o)
+        {
             this.filterChanged();
         }
     },
